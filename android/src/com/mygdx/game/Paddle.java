@@ -2,7 +2,7 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-public class Paddle {
+public class Paddle implements Observer {
     private static final Paddle høyre = new Paddle(780);
     private static final Paddle venstre = new Paddle(0);
 
@@ -54,5 +54,9 @@ public class Paddle {
 
     public void draw(ShapeRenderer rend) {
         rend.rect(x, y, width, height);
+    }
+
+    public void onScoreChanged(int vScore, int hScore) {
+        y = 240 - (height / 2);
     }
 }

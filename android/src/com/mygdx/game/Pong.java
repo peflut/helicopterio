@@ -20,9 +20,7 @@ public class Pong extends ApplicationAdapter {
     private static int hPoeng = 0;
     private static int vPoeng = 0;
 
-    private Paddle venstre;
-    private Paddle høyre;
-    private Ball ball;
+    private Observer[] obsers = new Observer[3];
 
     @Override
     public void create() {
@@ -33,9 +31,9 @@ public class Pong extends ApplicationAdapter {
         poengV.getData().setScale(5);
         batch = new SpriteBatch();
 
-        venstre = Paddle.getVenstre();
-        høyre = Paddle.getHøyre();
-        ball = Ball.getBall();
+        obsers[0] = Paddle.getVenstre();
+        obsers[1] = Paddle.getHøyre();
+        obsers[2] = Ball.getBall();
 
         cam = new OrthographicCamera();
         cam.setToOrtho(false, 800, 480);
@@ -62,19 +60,32 @@ public class Pong extends ApplicationAdapter {
             System.out.println(t);
             if (t.x == 2) { //Høyre side
                 if (t.y == 0) {
-                    høyre.move(3);
+                    Paddle.getHøyre().move(3);
                 }
                 else if (t.y == 1) {
-                    høyre.move(-3);
+                    Paddle.getHøyre().move(-3);
                 }
             }
             else if (t.x == 0) { //Venstre side
                 if (t.y == 0) {
-                    venstre.move(3);
+                    Paddle.getVenstre().move(3);
                 }
                 else if (t.y == 1) {
-                    venstre.move(-3);
+                    Paddle.getVenstre().move(-3);
                 }
+            }
+        }
+
+        if (Ball.getBall().getVenstre() > 800) {
+            vPoeng++;
+            for (Observer o : obsers) {
+                o.onScoreChanged(vPoeng, hPoeng);
+            }
+        }
+        else if (Ball.getBall().getHøyre() < 0) {
+            hPoeng++;
+            for (Observer o : obsers) {
+                o.onScoreChanged(vPoeng, hPoeng);
             }
         }
 
@@ -90,21 +101,18 @@ public class Pong extends ApplicationAdapter {
             batch.begin();
             text.draw(batch, win, 350, 190);
             batch.end();
-
-            ball.stop();
         }
 
         rend.begin(ShapeRenderer.ShapeType.Filled);
         rend.setColor(Color.LIME);
-        venstre.draw(rend);
-        høyre.draw(rend);
-        ball.draw(rend);
+        for (Observer o : obsers) {
+            o.draw(rend);
+        }
         rend.end();
 
         batch.begin();
         poengV.draw(batch, "" + vPoeng, 10, Gdx.graphics.getHeight() - 20);
         poengH.draw(batch, "" + hPoeng, Gdx.graphics.getWidth() - 80, Gdx.graphics.getHeight() - 20);
         batch.end();
-
     }
 }

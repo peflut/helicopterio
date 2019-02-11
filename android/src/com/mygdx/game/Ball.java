@@ -2,13 +2,13 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-public class Ball {
+public class Ball implements Observer {
     private static final Ball ball = new Ball();
 
     private int rad = 20;
     private int x = 400;
     private int y = 240;
-    private int speedX = 2;
+    private int speedX = 1;
     private int speedY = 0;
 
     private Ball(){}
@@ -23,7 +23,6 @@ public class Ball {
 
         testToppBunnCollision();
         testPaddleCollision();
-        testScore();
     }
 
     private int getTopp() {
@@ -34,17 +33,12 @@ public class Ball {
         return y - rad;
     }
 
-    private int getHøyre() {
+    public int getHøyre() {
         return x + rad;
     }
 
-    private int getVenstre() {
+    public int getVenstre() {
         return x - rad;
-    }
-
-    public void draw(ShapeRenderer rend) {
-        move();
-        rend.circle(x, y, rad);
     }
 
     private void testToppBunnCollision() {
@@ -66,20 +60,6 @@ public class Ball {
         }
     }
 
-    private void testScore() {
-        if (getVenstre() > 800) {
-            Pong.vScore();
-            resetPos();
-            speedX = -2;
-            speedY = 0;
-        }
-        if (getHøyre() < 0) {
-            Pong.hScore();
-            resetPos();
-            speedX = 2;
-            speedY = 0;
-        }
-    }
     private void resetPos() {
         x = 400;
         y = 240;
@@ -89,5 +69,25 @@ public class Ball {
         resetPos();
         speedY = 0;
         speedX = 0;
+    }
+
+    public void draw(ShapeRenderer rend) {
+        move();
+        rend.circle(x, y, rad);
+    }
+
+    public void onScoreChanged(int vScore, int hScore) {
+        if (vScore >= 21 || hScore >= 21) { //GAME OVER
+            stop();
+        }
+        else {
+            resetPos();
+            speedY = 0;
+            speedX = vScore - hScore; //Auto-balancing lol
+            if (speedX == 0) {
+                speedX = 1;
+            }
+
+        }
     }
 }
